@@ -149,7 +149,7 @@ public class Player : MonoBehaviour
        }
 
 
-       transform.rotation = Quaternion.Euler(0f, 0f, m_fAngle);
+       transform.rotation = Quaternion.Euler(0f, 0f, m_fAngle + 90f);
        transform.position += GetMovementDirection() * m_fSpeed;
    }
 
