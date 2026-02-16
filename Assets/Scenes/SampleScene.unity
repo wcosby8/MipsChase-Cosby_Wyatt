@@ -350,15 +350,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
       propertyPath: m_fIncSpeed
-      value: 0.05
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
       propertyPath: m_fSlowSpeed
-      value: 0.066
+      value: 0.038
+      objectReference: {fileID: 0}
+    - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
+      propertyPath: m_fFastRotateMax
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
       propertyPath: m_fMagnitudeFast
-      value: 0.5
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
+      propertyPath: m_fMagnitudeSlow
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: -7584827978028588409, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
+      propertyPath: m_fFastRotateSpeed
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 2572352322406527498, guid: d27d916d65cd15a499487199ad1649a3, type: 3}
       propertyPath: m_Name
