@@ -16,10 +16,10 @@ public class Target : MonoBehaviour
 
     private Color[] stateColors = new Color[(int)eState.kNumStates]
    {
-        new Color(1f, 0f,   0f),    // Red - Idle
-        new Color(0f, 1f,  0f),    // Green - HopStart (not used)
-        new Color(0f, 0f,  1f),    // Blue - Hop (evading)
-        new Color(1f, 1f,  1f)     // White - Caught
+        new Color(255, 0,   0),
+        new Color(0,   255, 0),
+        new Color(0,   0,   255),
+        new Color(255, 255, 255)
    };
 
     // External tunables.
@@ -43,62 +43,45 @@ public class Target : MonoBehaviour
 
     void Update()
     {
-        // If caught, don't do anything
-        if (m_nState == eState.kCaught)
-        {
+        //if the target is caught, nothing  
+        if(m_nState == eState.kCaught){
             return;
         }
 
-        // If idle, check if player is close
-        if (m_nState == eState.kIdle)
-        {
-            if (m_player != null && !m_player.IsDiving())
-            {
+        //if the target is idle, check if the player is close 
+        if(m_nState == eState.kIdle){
+            if(m_player != null && !m_player.IsDiving()){
                 float dist = Vector3.Distance(transform.position, m_player.transform.position);
-                if (dist < m_fScaredDistance)
-                {
-                    // Start hopping - find a direction away from player that stays on screen
+                if (dist < m_fScaredDistance){
+                    //start hopping, find a direction away from the player that stays on screen
                     m_vHopStartPos = transform.position;
                     
-                    // Calculate direction away from player
+                    //calculate direction away from the player
                     Vector3 awayFromPlayer = (transform.position - m_player.transform.position).normalized;
-                    if (awayFromPlayer.magnitude < 0.001f)
-                    {
+                    if(awayFromPlayer.magnitude < 0.001f){
                         awayFromPlayer = Vector3.right;
                     }
-                    
-                    // Try to find a valid hop position that stays on screen
+                    //trying to find a valid hop position that stays on screen
                     Vector3 hopDirection = awayFromPlayer;
                     float hopDistance = m_fHopSpeed * m_fHopTime;
                     Vector3 hopEndPos = m_vHopStartPos + hopDirection * hopDistance;
                     
-                    // Check screen bounds
+                    //checking screen bounds
                     Camera cam = Camera.main;
-                    if (cam != null)
-                    {
-                        Vector3 screenMin = cam.ViewportToWorldPoint(new Vector3(0, 0, -cam.transform.position.z));
+                    if(cam != null){
+                        Vector3 screenMin = cam.ViewportToWorldPoint(new Vector3(0,0, -cam.transform.position.z));
                         Vector3 screenMax = cam.ViewportToWorldPoint(new Vector3(1, 1, -cam.transform.position.z));
+                        //trying different angles if initial direction goes off screen
+                        bool foundValid =(hopEndPos.x >= screenMin.x && hopEndPos.x <= screenMax.x && hopEndPos.y >= screenMin.y && hopEndPos.y <= screenMax.y);
                         
-                        // Try different angles if initial direction goes off screen
-                        bool foundValid = (hopEndPos.x >= screenMin.x && hopEndPos.x <= screenMax.x &&
-                                         hopEndPos.y >= screenMin.y && hopEndPos.y <= screenMax.y);
-                        
-                        if (!foundValid)
-                        {
-                            // Try rotating the direction to find a valid position
-                            for (int i = 0; i < m_nMaxMoveAttempts; i++)
-                            {
+                        if (!foundValid){
+                            //trying to rotate the direction to find a valid position
+                            for(int i = 0; i < m_nMaxMoveAttempts; i++){
                                 float angle = (i / (float)m_nMaxMoveAttempts) * 360.0f * Mathf.Deg2Rad;
-                                Vector3 testDir = new Vector3(
-                                    awayFromPlayer.x * Mathf.Cos(angle) - awayFromPlayer.y * Mathf.Sin(angle),
-                                    awayFromPlayer.x * Mathf.Sin(angle) + awayFromPlayer.y * Mathf.Cos(angle),
-                                    0
-                                );
+                                Vector3 testDir = new Vector3(awayFromPlayer.x * Mathf.Cos(angle) - awayFromPlayer.y * Mathf.Sin(angle), awayFromPlayer.x * Mathf.Sin(angle) + awayFromPlayer.y * Mathf.Cos(angle), 0);
                                 Vector3 testPos = m_vHopStartPos + testDir * hopDistance;
                                 
-                                if (testPos.x >= screenMin.x && testPos.x <= screenMax.x &&
-                                    testPos.y >= screenMin.y && testPos.y <= screenMax.y)
-                                {
+                                if(testPos.x >= screenMin.x && testPos.x <= screenMax.x && testPos.y >= screenMin.y && testPos.y <= screenMax.y){
                                     hopDirection = testDir;
                                     hopEndPos = testPos;
                                     foundValid = true;
@@ -107,39 +90,27 @@ public class Target : MonoBehaviour
                             }
                         }
                     }
-                    
                     m_vHopEndPos = hopEndPos;
                     m_fHopStart = Time.time;
                     m_nState = eState.kHop;
                 }
             }
         }
-        // If hopping, lerp to end position
-        else if (m_nState == eState.kHop)
-        {
+        //if the target is hopping, interpolate to end position
+        else if (m_nState == eState.kHop){
             float elapsed = Time.time - m_fHopStart;
             float t = Mathf.Clamp01(elapsed / m_fHopTime);
             transform.position = Vector3.Lerp(m_vHopStartPos, m_vHopEndPos, t);
             
-            if (t >= 1.0f)
-            {
-                m_nState = eState.kIdle;
+            if(t >= 1.0f){
+                m_nState = eState.kIdle; 
             }
         }
     }
 
     void FixedUpdate()
     {
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.color = stateColors[(int)m_nState];
-        }
-        else
-        {
-            Renderer r = GetComponent<Renderer>();
-            if (r != null) r.material.color = stateColors[(int)m_nState];
-        }
+        GetComponent<Renderer>().material.color = stateColors[(int)m_nState];
     }
 
     void OnTriggerStay2D(Collider2D collision)
@@ -148,13 +119,11 @@ public class Target : MonoBehaviour
         if (collision.gameObject == GameObject.Find("Player"))
         {
             // If the player is diving, it's a catch!
-            if (m_player.IsDiving() && m_nState != eState.kCaught)
+            if (m_player.IsDiving())
             {
                 m_nState = eState.kCaught;
                 transform.parent = m_player.transform;
-                transform.localPosition = new Vector3(0.6f, 0.6f, 0.0f);
-                // Ensure the target stays visible
-                gameObject.SetActive(true);
+                transform.localPosition = new Vector3(0.0f, -0.5f, 0.0f);
             }
         }
     }
